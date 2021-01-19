@@ -1,6 +1,8 @@
 package com.demo.quartz.controller;
 
 import com.demo.quartz.dto.JobRequestDto;
+import com.demo.quartz.dto.JobResponseDto;
+import com.demo.quartz.service.JobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,9 +16,11 @@ import java.security.Principal;
 @RequestMapping(value = "/quartz")
 public class QuartzController {
 
+    private final JobService jobService;
 
     @PostMapping("/scheduleJob")
-    public void scheduleJob(@RequestBody JobRequestDto jobRequest, Principal principal) {
+    public JobResponseDto scheduleJob(@RequestBody JobRequestDto jobRequest) {
+       return jobService.save(jobRequest);
     }
 
 

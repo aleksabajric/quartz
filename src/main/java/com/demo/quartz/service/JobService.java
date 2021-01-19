@@ -14,7 +14,7 @@ public interface JobService {
 
     SchedulerJobInfo findOne (String id);
 
-    JobResponseDto save (JobRequestDto requestDto) throws Exception;
+    JobResponseDto save (JobRequestDto requestDto);
 
     JobResponseDto update (JobRequestDto requestDto) throws Exception;
 

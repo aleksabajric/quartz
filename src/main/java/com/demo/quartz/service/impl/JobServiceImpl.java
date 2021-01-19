@@ -49,7 +49,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
-    public JobResponseDto save(JobRequestDto requestDto) throws Exception {
+    public JobResponseDto save(JobRequestDto requestDto) {
         String jobId = UUID.randomUUID().toString();
         SchedulerJobInfo job = new SchedulerJobInfo();
         job.setId(jobId);
