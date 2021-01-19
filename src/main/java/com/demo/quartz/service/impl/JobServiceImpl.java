@@ -32,9 +32,8 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public Page<JobResponseDto> findAll(Predicate predicate, Pageable pageable) {
-//        Page<JobResponseDto> page = schedulerJobInfoDao.findAll(predicate, pageable);
-//        return new PageImpl<>(page.stream().map(JobResponseDto::new).collect(Collectors.toList()), pageable, page.getTotalElements());
-    return null;
+        Page<SchedulerJobInfo> page = schedulerJobInfoDao.findAll(pageable);
+        return new PageImpl<>(page.stream().map(JobResponseDto::new).collect(Collectors.toList()), pageable, page.getTotalElements());
     }
 
     @Override
