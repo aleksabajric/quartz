@@ -13,13 +13,14 @@ import java.time.ZoneId;
 @Builder
 @NoArgsConstructor @AllArgsConstructor
 public class JobRequestDto {
-    private Long id;
+    private String id;
     private String name;
     @Builder.Default
     private LocalDateTime dateCreated = LocalDateTime.now();
-    private String describe;
+    private String description;
     @NotNull
     private LocalDateTime dateTime;
     @NotNull
     private ZoneId timeZone;
+    private String cron;
 }

@@ -10,17 +10,17 @@ public class SchedulerJobInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     private String jobName;
 
-    private String jobGroup;
-
-    private String jobClass;
+    private String description;
 
     private String cronExpression;
 
     private Long repeatTime;
 
     private Boolean cronJob;
+
+    private String userId;
 }

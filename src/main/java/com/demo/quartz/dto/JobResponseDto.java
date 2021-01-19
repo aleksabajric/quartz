@@ -1,5 +1,6 @@
 package com.demo.quartz.dto;
 
+import com.demo.quartz.domain.SchedulerJobInfo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,4 +15,12 @@ public class JobResponseDto {
     private String name;
     private LocalDateTime dateCreated;
     private String describe;
+
+    public JobResponseDto(SchedulerJobInfo job) {
+
+    }
+
+    public JobResponseDto(JobResponseDto jobResponseDto) {
+
+    }
 }
