@@ -14,13 +14,12 @@ import java.time.LocalDateTime;
 public class JobResponseDto {
     private String name;
     private LocalDateTime dateCreated;
-    private String describe;
+    private String description;
 
     public JobResponseDto(SchedulerJobInfo job) {
-
+        this.name = job.getJobName();
+        this.dateCreated = job.getDateCreated();
+        this.description = job.getDescription();
     }
 
-    public JobResponseDto(JobResponseDto jobResponseDto) {
-
-    }
 }

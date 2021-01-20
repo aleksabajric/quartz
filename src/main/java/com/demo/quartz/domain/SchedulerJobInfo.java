@@ -2,6 +2,7 @@ package com.demo.quartz.domain;
 
 import lombok.Data;
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "scheduler_job_info")
@@ -21,6 +22,9 @@ public class SchedulerJobInfo {
 
     @Column(name = "repeat_time")
     private Long repeatTime;
+
+    @Column(name = "date_created")
+    private LocalDateTime dateCreated;
 
     @Column(name = "cron_job")
     private Boolean cronJob;
