@@ -1,27 +1,89 @@
-package com.demo.quartz.config;
+package  com.demo.quartz.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Collections;
 
+@Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private final ObjectMapper mapper;
+    private final TokenStore tokenStore;
+    private final TokenFilter tokenFilter;
+    private final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
+
     @Override
-    public void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                .authorizeRequests()
-                .and()
-                .antMatcher("/**")
-                .authorizeRequests()
-                .antMatchers("/")
-                .authenticated()
+    protected void configure( HttpSecurity http ) throws Exception {
+        http.csrf().disable().cors().and().authorizeRequests()
+                .antMatchers( "/oauth2/**", "/login**" ).permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .oauth2Login().permitAll()
+                .oauth2Login()
+                .authorizationEndpoint()
                 .and()
-                .logout()
-                .invalidateHttpSession(true)
-                .clearAuthentication(true);
+                .successHandler( this::successHandler )/*.defaultSuccessUrl("http://localhost:4200/home")*/
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint( this::authenticationEntryPoint )
+                .and().logout(cust -> cust.addLogoutHandler( this::logout ).logoutSuccessHandler( this::onLogoutSuccess ));
+        http.addFilterBefore( tokenFilter, UsernamePasswordAuthenticationFilter.class );
+    }
+
+    private void logout(HttpServletRequest request, HttpServletResponse response,
+                        Authentication authentication) {
+        // You can process token here
+        System.out.println("Auth token is - " + request.getHeader( "Authorization" ));
+    }
+
+    void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
+                         Authentication authentication) throws IOException, ServletException {
+        response.setStatus( HttpServletResponse.SC_OK );
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedMethods( Collections.singletonList( "*" ) );
+        config.setAllowedOrigins( Collections.singletonList( "*" ) );
+        config.setAllowedHeaders( Collections.singletonList( "*" ) );
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration( "/**", config );
+        return source;
+    }
+
+
+    private void successHandler( HttpServletRequest request,
+                                 HttpServletResponse response, Authentication authentication ) throws IOException {
+        String token = tokenStore.generateToken( authentication );
+        response.getWriter().write(
+                mapper.writeValueAsString( Collections.singletonMap( "accessToken", token ) )
+        );
+    }
+
+    private void authenticationEntryPoint( HttpServletRequest request, HttpServletResponse response,
+                                           AuthenticationException authException ) throws IOException {
+        logger.info(request.getHeader("Authorization"));
+        response.setStatus( HttpServletResponse.SC_UNAUTHORIZED );
+        response.getWriter().write( mapper.writeValueAsString( Collections.singletonMap( "error", "Unauthenticated" ) ) );
     }
 }
