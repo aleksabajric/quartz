@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -16,6 +17,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -32,7 +34,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final ObjectMapper mapper;
+    private final BearerTokenFilter tokenFilter;
     private final TokenProvider tokenProvider;
     @Value("${token.duration}")
     private Integer tokenDuration;
@@ -48,10 +50,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizationEndpoint()
                 .and()
                 .successHandler( this::successHandler )
-                .and()
-                .exceptionHandling()
-                .authenticationEntryPoint( this::authenticationEntryPoint )
+                //.and()
+                //.exceptionHandling()
+                //.authenticationEntryPoint( this::authenticationEntryPoint )
                 .and().logout(log -> log.addLogoutHandler( this::logout ).logoutSuccessHandler( this::onLogoutSuccess ));
+        http.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     private void logout(HttpServletRequest request, HttpServletResponse response,
@@ -84,12 +87,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         response.sendRedirect("http://localhost:4200/home?token=" + token);
     }
 
-    private void authenticationEntryPoint( HttpServletRequest request, HttpServletResponse response,
-                                           AuthenticationException authException ) throws IOException {
-        logger.info(request.getHeader("Authorization"));
-        if (request.getHeader("Authorization").isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write(mapper.writeValueAsString(Collections.singletonMap("error", "Unauthenticated")));
-        }
-    }
+//    private void authenticationEntryPoint( HttpServletRequest request, HttpServletResponse response,
+//                                           AuthenticationException authException ) throws IOException {
+//        logger.info(request.getHeader("Authorization"));
+//        if (request.getHeader("Authorization").isEmpty()) {
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            response.getWriter().write(mapper.writeValueAsString(Collections.singletonMap("error", "Unauthenticated")));
+//        }
+//    }
 }

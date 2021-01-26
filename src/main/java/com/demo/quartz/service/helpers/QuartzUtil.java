@@ -1,4 +1,4 @@
-package com.demo.quartz.service;
+package com.demo.quartz.service.helpers;
 
 import com.demo.quartz.util.InvalidCronException;
 import org.quartz.*;

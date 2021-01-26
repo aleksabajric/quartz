@@ -6,7 +6,7 @@ import com.demo.quartz.dto.JobRequestDto;
 import com.demo.quartz.dto.JobResponseDto;
 import com.demo.quartz.service.JobService;
 import com.demo.quartz.service.QuartzSchedulerProvider;
-import com.demo.quartz.service.QuartzUtil;
+import com.demo.quartz.service.helpers.QuartzUtil;
 import com.demo.quartz.util.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.quartz.SchedulerException;

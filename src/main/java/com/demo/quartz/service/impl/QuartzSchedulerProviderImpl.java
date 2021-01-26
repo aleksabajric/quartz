@@ -1,7 +1,7 @@
 package com.demo.quartz.service.impl;
 
 import com.demo.quartz.service.QuartzSchedulerProvider;
-import com.demo.quartz.service.QuartzUtil;
+import com.demo.quartz.service.helpers.QuartzUtil;
 import lombok.AllArgsConstructor;
 import org.quartz.*;
 import org.slf4j.Logger;

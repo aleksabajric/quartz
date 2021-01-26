@@ -1,4 +1,4 @@
-package com.demo.quartz.service;
+package com.demo.quartz.service.helpers;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;

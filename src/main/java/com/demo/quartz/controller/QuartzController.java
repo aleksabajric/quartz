@@ -24,8 +24,8 @@ public class QuartzController {
     }
 
     @GetMapping(value = "/info")
-    public OAuth2User info (OAuth2AuthenticationToken oAuth2AuthenticationToken){
-        return oAuth2AuthenticationToken.getPrincipal();
+    public String info (Principal principal){
+        return principal.getName();
     }
 
 

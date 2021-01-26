@@ -3,7 +3,7 @@ package com.demo.quartz.service.impl;
 import com.demo.quartz.domain.tokendata.TokenData;
 import com.demo.quartz.exception.AuthenticationException;
 import com.demo.quartz.exception.PermissionException;
-import com.demo.quartz.service.DateHandlerService;
+import com.demo.quartz.service.helpers.DateHandlerService;
 import com.demo.quartz.service.ObjectMapperWrapper;
 import com.demo.quartz.service.TokenProvider;
 import io.jsonwebtoken.*;
@@ -51,6 +51,11 @@ public class TokenProviderImpl implements TokenProvider {
         } catch (IllegalArgumentException | SignatureException | UnsupportedJwtException | MalformedJwtException e) {
             throw new PermissionException("Invalid token!");
         }
+    }
+
+    @Override
+    public TokenData decryptToken(String token) {
+        return objectMapperWrapper.decodeFromJson(decrypt(token), TokenData.class);
     }
 
     @Override
