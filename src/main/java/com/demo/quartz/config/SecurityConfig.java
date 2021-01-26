@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -28,7 +27,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final ObjectMapper mapper;
     private final TokenStore tokenStore;
-    private final TokenFilter tokenFilter;
     private final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Override
@@ -40,17 +38,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .oauth2Login()
                 .authorizationEndpoint()
                 .and()
-                .successHandler( this::successHandler )/*.defaultSuccessUrl("http://localhost:4200/home")*/
+                .successHandler( this::successHandler )
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint( this::authenticationEntryPoint )
-                .and().logout(cust -> cust.addLogoutHandler( this::logout ).logoutSuccessHandler( this::onLogoutSuccess ));
-        http.addFilterBefore( tokenFilter, UsernamePasswordAuthenticationFilter.class );
+                .and().logout(log -> log.addLogoutHandler( this::logout ).logoutSuccessHandler( this::onLogoutSuccess ));
     }
 
     private void logout(HttpServletRequest request, HttpServletResponse response,
                         Authentication authentication) {
-        // You can process token here
+        // token here
         System.out.println("Auth token is - " + request.getHeader( "Authorization" ));
     }
 
@@ -78,12 +75,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         response.getWriter().write(
                 mapper.writeValueAsString( Collections.singletonMap( "accessToken", token ) )
         );
+        response.sendRedirect("http://localhost:4200/home?token=" + token);
+        logger.info("New Token : {}", token);
     }
 
     private void authenticationEntryPoint( HttpServletRequest request, HttpServletResponse response,
                                            AuthenticationException authException ) throws IOException {
         logger.info(request.getHeader("Authorization"));
-        response.setStatus( HttpServletResponse.SC_UNAUTHORIZED );
-        response.getWriter().write( mapper.writeValueAsString( Collections.singletonMap( "error", "Unauthenticated" ) ) );
+        if (request.getHeader("Authorization").isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write(mapper.writeValueAsString(Collections.singletonMap("error", "Unauthenticated")));
+        }
     }
 }

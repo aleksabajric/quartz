@@ -56,15 +56,13 @@ public class JobServiceImpl implements JobService {
         job.setCronExpression(requestDto.getCron());
         job.setDescription(requestDto.getDescription());
         quartzUtil.validateCronExpression(requestDto.getCron());
-
+        logger.info("New job: {}", job.toString());
         try {
             quartzSchedulerProvider.scheduleJob(jobId, requestDto.getCron(), JobResolver.class);
         } catch (SchedulerException e) {
             e.printStackTrace();
         }
-
         schedulerJobInfoDao.save(job);
-        logger.info("New system job: {}", job.toString());
         return new JobResponseDto(job);
     }
 
