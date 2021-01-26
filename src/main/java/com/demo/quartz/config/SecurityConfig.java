@@ -1,9 +1,11 @@
 package  com.demo.quartz.config;
 
+import com.demo.quartz.service.TokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,14 +13,19 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -26,7 +33,9 @@ import java.util.Collections;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final ObjectMapper mapper;
-    private final TokenStore tokenStore;
+    private final TokenProvider tokenProvider;
+    @Value("${token.duration}")
+    private Integer tokenDuration;
     private final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Override
@@ -71,12 +80,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private void successHandler( HttpServletRequest request,
                                  HttpServletResponse response, Authentication authentication ) throws IOException {
-        String token = tokenStore.generateToken( authentication );
-        response.getWriter().write(
-                mapper.writeValueAsString( Collections.singletonMap( "accessToken", token ) )
-        );
+        String token = tokenProvider.encrypt(tokenProvider.prepareUserDataForToken(authentication), tokenDuration);
         response.sendRedirect("http://localhost:4200/home?token=" + token);
-        logger.info("New Token : {}", token);
     }
 
     private void authenticationEntryPoint( HttpServletRequest request, HttpServletResponse response,
