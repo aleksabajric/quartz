@@ -20,9 +20,6 @@ public class SchedulerJobInfo {
     @Column(name = "cron_expression")
     private String cronExpression;
 
-    @Column(name = "repeat_time")
-    private Long repeatTime;
-
     @Column(name = "date_created")
     private LocalDateTime dateCreated;
 
@@ -30,5 +27,5 @@ public class SchedulerJobInfo {
     private Boolean cronJob;
 
     @Column(name = "user_id")
-    private String userId;
+    private Long userId;
 }

@@ -4,23 +4,24 @@ import com.demo.quartz.dao.SchedulerJobInfoDao;
 import com.demo.quartz.domain.SchedulerJobInfo;
 import com.demo.quartz.dto.JobRequestDto;
 import com.demo.quartz.dto.JobResponseDto;
+import com.demo.quartz.dto.UserResponse;
 import com.demo.quartz.service.JobService;
 import com.demo.quartz.service.QuartzSchedulerProvider;
+import com.demo.quartz.service.UserService;
 import com.demo.quartz.service.helpers.QuartzUtil;
 import com.demo.quartz.util.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.security.Principal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,11 +32,17 @@ public class JobServiceImpl implements JobService {
     private final QuartzSchedulerProvider quartzSchedulerProvider;
     private final QuartzUtil quartzUtil;
     private final SchedulerJobInfoDao schedulerJobInfoDao;
+    private final UserService userService;
 
     @Override
-    public Page<JobResponseDto> findAll(Predicate predicate, Pageable pageable) {
-        Page<SchedulerJobInfo> page = schedulerJobInfoDao.findAll(pageable);
-        return new PageImpl<>(page.stream().map(JobResponseDto::new).collect(Collectors.toList()), pageable, page.getTotalElements());
+    public List<JobResponseDto> findAll(Principal principal) {
+        UserResponse user = userService.findOrFetch(principal.getName().trim());
+        if (!Objects.isNull(user)){
+            return schedulerJobInfoDao.findAll(user.getId()).stream().map(JobResponseDto::new).collect(Collectors.toList());
+        }else {
+            throw new ResourceNotFoundException(String.format("User does not exist: {}", principal.getName()));
+        }
+
     }
 
     @Override
@@ -52,13 +59,16 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
-    public JobResponseDto save(JobRequestDto requestDto) {
+    public JobResponseDto save(JobRequestDto requestDto, Principal principal) {
+        UserResponse user = userService.findOrFetch(principal.getName().trim());
         String jobId = UUID.randomUUID().toString();
         SchedulerJobInfo job = new SchedulerJobInfo();
         job.setId(jobId);
         job.setJobName(requestDto.getName());
         job.setCronExpression(requestDto.getCron());
         job.setDescription(requestDto.getDescription());
+        job.setDateCreated(LocalDateTime.now());
+        job.setUserId(user.getId());
         quartzUtil.validateCronExpression(requestDto.getCron());
         logger.info("New job: {}", job.toString());
         try {

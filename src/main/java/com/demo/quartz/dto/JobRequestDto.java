@@ -20,7 +20,5 @@ public class JobRequestDto {
     private String description;
     @NotNull
     private LocalDateTime dateTime;
-    @NotNull
-    private ZoneId timeZone;
     private String cron;
 }
