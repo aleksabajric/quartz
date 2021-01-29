@@ -5,9 +5,8 @@ import com.demo.quartz.dto.JobResponseDto;
 import com.demo.quartz.service.JobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
