@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
@@ -25,10 +27,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class JobServiceImpl implements JobService {
 
+    private static final Logger logger = LoggerFactory.getLogger(JobServiceImpl.class);
     private final QuartzSchedulerProvider quartzSchedulerProvider;
     private final QuartzUtil quartzUtil;
     private final SchedulerJobInfoDao schedulerJobInfoDao;
-    private static final Logger logger = LoggerFactory.getLogger(JobServiceImpl.class);
 
     @Override
     public Page<JobResponseDto> findAll(Predicate predicate, Pageable pageable) {
@@ -38,12 +40,14 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public JobResponseDto findById(String id) {
-        return null;
+        return new JobResponseDto(findOne(id));
     }
 
     @Override
     public SchedulerJobInfo findOne(String id) {
-        return null;
+        return schedulerJobInfoDao.findById(id).orElseThrow(()->{
+            throw new ResourceNotFoundException(String.format("Job with id: {} does not exist", id));
+        });
     }
 
     @Override
