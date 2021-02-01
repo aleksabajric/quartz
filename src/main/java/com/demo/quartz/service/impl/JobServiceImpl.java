@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,17 +83,18 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
-    public JobResponseDto update(JobRequestDto requestDto) throws Exception {
+    public JobResponseDto update(JobRequestDto requestDto, Principal principal) throws Exception {
         SchedulerJobInfo job = findOne(requestDto.getId());
-        job.setJobName(requestDto.getName());
-        job.setDescription(requestDto.getDescription());
-        if(!job.getCronExpression().equals(requestDto.getCron())) {
-            try {
-                quartzUtil.validateCronExpression(requestDto.getCron());
-                job.setCronExpression(requestDto.getCron());
-                quartzSchedulerProvider.rescheduleJob(job.getId(), requestDto.getCron());
-            } catch (SchedulerException e) {
-                e.printStackTrace();
+        UserResponse user = userService.findByEmail(principal.getName().trim());
+        if (user.getId().equals(job.getUserId())){
+            if(!job.getCronExpression().equals(requestDto.getCron())) {
+                try {
+                    quartzUtil.validateCronExpression(requestDto.getCron());
+                    job.setCronExpression(requestDto.getCron());
+                    quartzSchedulerProvider.rescheduleJob(job.getId(), requestDto.getCron());
+                } catch (SchedulerException e) {
+                    e.printStackTrace();
+                }
             }
         }
         schedulerJobInfoDao.save(job);

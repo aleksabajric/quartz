@@ -1,13 +1,10 @@
 package com.demo.quartz.dto;
 
-import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 @Data
 @Builder
@@ -18,7 +15,5 @@ public class JobRequestDto {
     @Builder.Default
     private LocalDateTime dateCreated = LocalDateTime.now();
     private String description;
-    @NotNull
-    private LocalDateTime dateTime;
     private String cron;
 }

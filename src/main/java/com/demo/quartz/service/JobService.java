@@ -16,7 +16,7 @@ public interface JobService {
 
     JobResponseDto save(JobRequestDto requestDto, Principal principal);
 
-    JobResponseDto update(JobRequestDto requestDto) throws Exception;
+    JobResponseDto update(JobRequestDto requestDto, Principal principal) throws Exception;
 
     Boolean delete(String id);
 }

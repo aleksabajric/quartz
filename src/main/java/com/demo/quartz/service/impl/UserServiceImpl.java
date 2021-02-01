@@ -4,6 +4,7 @@ import com.demo.quartz.dao.UserDao;
 import com.demo.quartz.domain.User;
 import com.demo.quartz.dto.UserResponse;
 import com.demo.quartz.service.UserService;
+import com.demo.quartz.util.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
@@ -24,5 +25,12 @@ public class UserServiceImpl implements UserService {
             userDao.save(user);
             return new UserResponse(user);
         }
+    }
+
+    @Override
+    public UserResponse findByEmail(String email) {
+        return new UserResponse(userDao.findByEmail(email).orElseThrow(()-> {
+            throw new ResourceNotFoundException("User does not exist");
+        }));
     }
 }

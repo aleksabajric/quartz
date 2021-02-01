@@ -20,11 +20,16 @@ public class QuartzController {
     public List<JobResponseDto> findAll(Principal principal){
         return jobService.findAll(principal);
     }
+
     @RequestMapping(value = "/save", method = RequestMethod.POST, consumes = MediaType.ALL_VALUE)
     public JobResponseDto scheduleJob(@RequestBody JobRequestDto jobRequest, Principal principal) {
        return jobService.save(jobRequest, principal);
     }
 
+    @RequestMapping(value = "/update", method = RequestMethod.PUT, consumes = MediaType.ALL_VALUE)
+    public JobResponseDto update(@RequestBody JobRequestDto jobRequest, Principal principal) throws Exception {
+        return jobService.update(jobRequest, principal);
+    }
 
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     public void delete(@RequestParam String jobId){
