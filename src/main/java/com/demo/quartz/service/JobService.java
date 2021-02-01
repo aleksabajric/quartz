@@ -8,6 +8,7 @@ import java.security.Principal;
 import java.util.List;
 
 public interface JobService {
+
     List<JobResponseDto> findAll(Principal principal);
 
     JobResponseDto findById(String id);
