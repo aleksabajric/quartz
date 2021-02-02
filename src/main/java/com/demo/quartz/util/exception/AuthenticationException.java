@@ -1,16 +1,16 @@
-package com.demo.quartz.exception;
+package com.demo.quartz.util.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code= HttpStatus.FORBIDDEN)
-public class PermissionException extends RuntimeException {
+@ResponseStatus(code= HttpStatus.UNAUTHORIZED)
+public class AuthenticationException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
     private String message;
 
-    public PermissionException(String infoError) {
+    public AuthenticationException(String infoError) {
         super(infoError);
         message = infoError;
     }

@@ -1,8 +1,8 @@
 package com.demo.quartz.service.impl;
 
 import com.demo.quartz.domain.tokendata.TokenData;
-import com.demo.quartz.exception.AuthenticationException;
-import com.demo.quartz.exception.PermissionException;
+import com.demo.quartz.util.exception.AuthenticationException;
+import com.demo.quartz.util.exception.PermissionException;
 import com.demo.quartz.service.helpers.DateHandlerService;
 import com.demo.quartz.service.ObjectMapperWrapper;
 import com.demo.quartz.service.TokenProvider;
